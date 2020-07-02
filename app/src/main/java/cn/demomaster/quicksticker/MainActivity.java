@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -15,8 +16,8 @@ import java.util.Arrays;
 
 import cn.demomaster.quicksticker_annotations.BindEditView;
 import cn.demomaster.quicksticker_annotations.BindView;
-import cn.demomaster.quicksticker_api.launcher.QuickStickerBinder;
 import cn.demomaster.quicksticker_lib.EditViewUtil;
+import cn.demomaster.quicksticker_lib.QuickStickerBinder;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,8 +40,8 @@ public class MainActivity extends AppCompatActivity {
         QuickStickerBinder.getInstance().inject(this);
         tv_context.setText("tv_context");
         //et_phone.setText(parse());
-/*
-        editViewUtil = new EditViewUtil(new EditViewUtil.OnEditViewChangeListener() {
+
+        /*EditViewUtil.getInstance().addTextWarcherListener(this,new EditViewUtil.OnEditViewChangeListener() {
             @Override
             public void beforeTextChanged(EditText editText, CharSequence s, int start, int count, int after) {
 
@@ -48,9 +49,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(EditText editText, CharSequence s, int start, int before, int count) {
-                editText.setError("error");
+                //editText.setError("error");
                 switch (editText.getId()){
                     case R.id.et_username:
+                        Toast.makeText(MainActivity.this,"eeeeem",Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.et_phone:
                         break;
@@ -63,9 +65,9 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(EditText editText, Editable s) {
 
             }
-        });
+        });*/
 
-        editViewUtil.bind(et_username);
+        /*editViewUtil.bind(et_username);
         editViewUtil.bind(et_phone);
         editViewUtil.bind(et_password);*/
     }
@@ -73,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        QuickStickerBinder.getInstance().inject(this);
+        QuickStickerBinder.getInstance().unBind(this);
 
     }
 

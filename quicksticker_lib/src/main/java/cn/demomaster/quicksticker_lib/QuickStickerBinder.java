@@ -1,7 +1,5 @@
-package cn.demomaster.quicksticker_api.launcher;
+package cn.demomaster.quicksticker_lib;
 
-
-import cn.demomaster.quicksticker_api.template.BindInterface;
 
 import static cn.demomaster.quicksticker_annotations.Constant.BindClassSuffix;
 

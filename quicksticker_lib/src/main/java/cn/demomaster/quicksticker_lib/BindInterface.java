@@ -1,4 +1,4 @@
-package cn.demomaster.quicksticker_api.template;
+package cn.demomaster.quicksticker_lib;
 
 public interface BindInterface {
     void bind(Object target);

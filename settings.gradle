@@ -2,5 +2,4 @@
 include ':app'
 include ':quicksticker-annotations'
 include ':quicksticker-compiler'
-include ':quicksticker-api'
 include ':quicksticker_lib'

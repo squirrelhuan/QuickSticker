@@ -124,6 +124,11 @@ public class BindViewProcessor extends AbstractProcessor {
         }
     }
 
+    /**
+     * 生成代碼
+     * @param typeElement
+     * @return
+     */
     private String generateCode(TypeElement typeElement) {
         String rawClassName = typeElement.getSimpleName().toString();
         String packageName = ((PackageElement) mElementsUtils.getPackageOf(typeElement)).getQualifiedName().toString();
@@ -131,22 +136,23 @@ public class BindViewProcessor extends AbstractProcessor {
 
         StringBuilder builder = new StringBuilder();
         builder.append("package ").append(packageName).append(";\n");
-        builder.append("import cn.demomaster.quicksticker_api.template.BindInterface;\n\n");
+        builder.append("import cn.demomaster.quicksticker_lib.BindInterface;\n");
         builder.append("\n" +
                 "import android.text.Editable;\n" +
                 "import android.text.TextWatcher;\n" +
                 "import android.widget.Toast;\n"+
                 "import "+ EidtViewHelper.class.getName()+";\n"+
-                "import cn.demomaster.quicksticker_lib.EditViewUtil;\n");
+                "import cn.demomaster.quicksticker_lib.EditViewUtil;\n"+
+                "\n");
 
-        builder.append("/*" + printStr + "\n*/\n");
+        //builder.append("/*" + printStr + "\n*/\n");
 
         builder.append("public class ").append(helperClassName).append(" implements ").append("BindInterface");
         builder.append(" {\n");
 
 
         builder.append("\t");
-        builder.append("EditViewUtil  editViewUtil = new EditViewUtil();\n");
+        builder.append("EditViewUtil  editViewUtil = EditViewUtil.getInstance();\n");
 
         builder.append("\t@Override\n");
         builder.append("\tpublic void bind(" + "Object" + " target) {\n");
@@ -163,7 +169,6 @@ public class BindViewProcessor extends AbstractProcessor {
             builder.append("\t\t");
             builder.append("substitute." + viewInfo.viewName).append(" = ");
             builder.append("substitute.findViewById(" + viewInfo.id + ");\n");
-            //
             builder.append("\t\t");
             //builder.append(EidtViewHelper.class.getSimpleName()+".bindEditView("+builder+",substitute." + viewInfo.viewName+");\n");
             //builder.append(EidtViewHelper.bindEditView("substitute." + viewInfo.viewName));
@@ -176,7 +181,7 @@ public class BindViewProcessor extends AbstractProcessor {
         builder.append("\tpublic void unbind(" + "Object" + " target) {\n");
 
         builder.append("\t\t");
-        builder.append("editViewUtil.unBind();\n");
+        builder.append("editViewUtil.unBind(target);\n");
         builder.append("\t}\n");
 
         builder.append('\n');

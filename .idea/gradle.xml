@@ -12,7 +12,6 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/quicksticker-annotations" />
-            <option value="$PROJECT_DIR$/quicksticker-api" />
             <option value="$PROJECT_DIR$/quicksticker-compiler" />
             <option value="$PROJECT_DIR$/quicksticker_lib" />
           </set>
