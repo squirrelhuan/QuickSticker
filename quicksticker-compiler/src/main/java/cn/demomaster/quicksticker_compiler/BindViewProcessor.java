@@ -1,8 +1,5 @@
 package cn.demomaster.quicksticker_compiler;
 
-import cn.demomaster.quicksticker_annotations.BindEditView;
-import cn.demomaster.quicksticker_annotations.BindView;
-import cn.demomaster.quicksticker_annotations.parser.EidtViewHelper;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -26,10 +23,14 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.JavaFileObject;
 
+import cn.demomaster.quicksticker_annotations.BindEditView;
+import cn.demomaster.quicksticker_annotations.BindInterface;
+import cn.demomaster.quicksticker_annotations.BindView;
+
 import static cn.demomaster.quicksticker_annotations.Constant.BindClassSuffix;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedAnnotationTypes("cn.demomaster.quicksticker_annotations.BindView")
+@SupportedAnnotationTypes({"cn.demomaster.quicksticker_annotations.BindView", "cn.demomaster.quicksticker_annotations.BindEditView"})
 public class BindViewProcessor extends AbstractProcessor {
     private Filer mFilerUtils;
     private Types mTypesUtils;
@@ -85,6 +86,21 @@ public class BindViewProcessor extends AbstractProcessor {
                     e.printStackTrace();
                 }
             }
+            for (TypeElement typeElement : mToBindEditMap.keySet()) {
+                String code = generateCode(typeElement);
+                String helperClassName = typeElement.getQualifiedName() + BindClassSuffix;
+
+                try {
+                    JavaFileObject jfo = mFilerUtils.createSourceFile(helperClassName, typeElement);
+                    Writer writer = jfo.openWriter();
+                    writer.write(code);
+                    writer.flush();
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
             return true;
         }
         return false;
@@ -109,7 +125,7 @@ public class BindViewProcessor extends AbstractProcessor {
                 Object bindAnnotation = variableElement.getAnnotation(clazz);
                 int id = ((BindView) bindAnnotation).value();
                 views.add(new ViewInfo(variableElement.getSimpleName().toString(), id));
-                println(clazz.getSimpleName()+" enclosingElement=" + enclosingElement + ",views=" + views);
+                println(clazz.getSimpleName() + " enclosingElement=" + enclosingElement + ",views=" + views);
             } else if (clazz == BindEditView.class) {
                 Set<ViewInfo> editViews = mToBindEditMap.get(enclosingElement);
                 if (editViews == null) {
@@ -119,13 +135,14 @@ public class BindViewProcessor extends AbstractProcessor {
                 Object bindAnnotation_eidtView = variableElement.getAnnotation(clazz);
                 int id2 = ((BindEditView) bindAnnotation_eidtView).value();
                 editViews.add(new ViewInfo(variableElement.getSimpleName().toString(), id2));
-                println(clazz.getSimpleName()+" enclosingElement=" + enclosingElement + ",views=" + editViews);
+                println(clazz.getSimpleName() + " enclosingElement=" + enclosingElement + ",views=" + editViews);
             }
         }
     }
 
     /**
      * 生成代碼
+     *
      * @param typeElement
      * @return
      */
@@ -136,13 +153,13 @@ public class BindViewProcessor extends AbstractProcessor {
 
         StringBuilder builder = new StringBuilder();
         builder.append("package ").append(packageName).append(";\n");
-        builder.append("import cn.demomaster.quicksticker_lib.BindInterface;\n");
+        builder.append("import " + BindInterface.class.getName() + ";\n");
         builder.append("\n" +
                 "import android.text.Editable;\n" +
                 "import android.text.TextWatcher;\n" +
-                "import android.widget.Toast;\n"+
-                "import "+ EidtViewHelper.class.getName()+";\n"+
-                "import cn.demomaster.quicksticker_lib.EditViewUtil;\n"+
+                "import android.widget.Toast;\n" +
+                "import cn.demomaster.quicksticker_lib.EditViewUtil;\n" +
+                "import cn.demomaster.quicksticker_lib.BindViewUtil;\n" +
                 "\n");
 
         //builder.append("/*" + printStr + "\n*/\n");
@@ -159,23 +176,55 @@ public class BindViewProcessor extends AbstractProcessor {
 
         builder.append("\t\t");
         builder.append(rawClassName + " substitute = " + "(" + rawClassName + ")" + "target;\n");
-        for (ViewInfo viewInfo : mToBindMap.get(typeElement)) {
-            builder.append("\t\t");
-            builder.append("substitute." + viewInfo.viewName).append(" = ");
-            builder.append("substitute.findViewById(" + viewInfo.id + ");\n");
+
+        if (mToBindMap != null && typeElement != null && mToBindMap.get(typeElement) != null) {
+            for (ViewInfo viewInfo : mToBindMap.get(typeElement)) {
+                builder.append("\t\t");
+                builder.append("substitute." + viewInfo.viewName + " = BindViewUtil.initViewById(substitute," + viewInfo.id + ");\n");
+            }
         }
 
-        for (ViewInfo viewInfo : mToBindEditMap.get(typeElement)) {
-            builder.append("\t\t");
-            builder.append("substitute." + viewInfo.viewName).append(" = ");
-            builder.append("substitute.findViewById(" + viewInfo.id + ");\n");
-            builder.append("\t\t");
-            //builder.append(EidtViewHelper.class.getSimpleName()+".bindEditView("+builder+",substitute." + viewInfo.viewName+");\n");
-            //builder.append(EidtViewHelper.bindEditView("substitute." + viewInfo.viewName));
-            builder.append("editViewUtil.bind(substitute." + viewInfo.viewName+");\n");
+        if (mToBindEditMap != null && typeElement != null && mToBindEditMap.get(typeElement) != null) {
+            for (ViewInfo viewInfo : mToBindEditMap.get(typeElement)) {
+                /*builder.append("\t\t");
+                builder.append("substitute." + viewInfo.viewName).append(" = ");
+                builder.append("substitute.findViewById(" + viewInfo.id + ");\n");
+                builder.append("\t\t");*/
+
+                builder.append("\t\t");
+                builder.append("substitute." + viewInfo.viewName + " = BindViewUtil.initViewById(substitute," + viewInfo.id + ");\n");
+                //builder.append(EidtViewHelper.class.getSimpleName()+".bindEditView("+builder+",substitute." + viewInfo.viewName+");\n");
+                //builder.append(EidtViewHelper.bindEditView("substitute." + viewInfo.viewName));
+                //builder.append("editViewUtil.bind(substitute." + viewInfo.viewName + ");\n");
+            }
         }
 
         builder.append("\t}\n");
+
+
+        builder.append("//适用于fragment\n");
+        builder.append("\t@Override\n");
+        builder.append("\tpublic void bind(" + "Object  target,Object view) {\n");
+        builder.append("\t\t");
+        builder.append(rawClassName + " substitute = " + "(" + rawClassName + ")" + "target;\n");
+        if (mToBindMap != null && typeElement != null && mToBindMap.get(typeElement) != null) {
+            for (ViewInfo viewInfo : mToBindMap.get(typeElement)) {
+                builder.append("\t\t");
+                builder.append("substitute." + viewInfo.viewName + " = BindViewUtil.initViewById(view," + viewInfo.id + ");\n");
+            }
+        }
+        if (mToBindEditMap != null && typeElement != null && mToBindEditMap.get(typeElement) != null) {
+            for (ViewInfo viewInfo : mToBindEditMap.get(typeElement)) {
+                builder.append("\t\t");
+                builder.append("substitute." + viewInfo.viewName + " = BindViewUtil.initViewById(view," + viewInfo.id + ");\n");
+                //builder.append(EidtViewHelper.class.getSimpleName()+".bindEditView("+builder+",substitute." + viewInfo.viewName+");\n");
+                //builder.append(EidtViewHelper.bindEditView("substitute." + viewInfo.viewName));
+                //builder.append("editViewUtil.bind(substitute." + viewInfo.viewName + ");\n");
+            }
+        }
+
+        builder.append("\t}\n");
+
 
         builder.append("\t@Override\n");
         builder.append("\tpublic void unbind(" + "Object" + " target) {\n");

@@ -1,11 +1,11 @@
-package cn.demomaster.quicksticker_lib;
+package cn.demomaster.quicksticker_annotations;
 
 
-import static cn.demomaster.quicksticker_annotations.Constant.BindClassSuffix;
+//import static cn.demomaster.quicksticker_annotations.Constant.BindClassSuffix;
 
 public class QuickStickerBinder {
     private static volatile QuickStickerBinder instance = null;
-
+    static String BindClassSuffix ="$$BindClass";
     public QuickStickerBinder() {
     }
 
@@ -20,18 +20,37 @@ public class QuickStickerBinder {
         return instance;
     }
 
-    public void inject(Object target) {
+    /**
+     * 绑定
+     * @param target
+     */
+    public void bind(Object target) {
         String className = target.getClass().getCanonicalName();
         String helperName = className + BindClassSuffix;
         try {
             BindInterface helper = (BindInterface) (Class.forName(helperName).getConstructor().newInstance());
-
             helper.bind(target);
         }   catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * fragment 绑定view
+     * @param target
+     * @param mView
+     */
+    public void bind(Object target, Object mView) {
+        String className = target.getClass().getCanonicalName();
+        String helperName = className + BindClassSuffix;
+        try {
+            BindInterface helper = (BindInterface) (Class.forName(helperName).getConstructor().newInstance());
+
+            helper.bind(target,mView);
+        }   catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     public void unBind(Object target) {
         String className = target.getClass().getCanonicalName();
         String helperName = className + BindClassSuffix;
@@ -42,4 +61,6 @@ public class QuickStickerBinder {
             e.printStackTrace();
         }
     }
+
+
 }

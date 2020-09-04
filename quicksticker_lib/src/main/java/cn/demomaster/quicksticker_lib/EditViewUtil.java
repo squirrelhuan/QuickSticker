@@ -10,6 +10,9 @@ import java.util.Map;
 
 import static android.view.View.NO_ID;
 
+/**
+ * 编辑框
+ */
 public class EditViewUtil {
 
     private static EditViewUtil instance;
@@ -42,15 +45,21 @@ public class EditViewUtil {
 
     Map<Integer, MyTextWatcher> viewMap;
     Map<Integer,OnEditViewChangeListener> listenerMap = new HashMap<>();
-    public void addTextWarcherListener(Context context, OnEditViewChangeListener onEditViewChangeListener){
+    public void addTextChangedListener(Context context, OnEditViewChangeListener onEditViewChangeListener){
         listenerMap.put(context.hashCode(),onEditViewChangeListener);
     }
-    public void bind(EditText view) {
+    public void bind(Object view) {
+        EditText editText;
+        if(view instanceof EditText){
+            editText = (EditText) view;
+        }else {
+            return;
+        }
         if (viewMap == null) {
             viewMap = new HashMap<>();
         }
-        if(view!=null&&view.getId()!=NO_ID&&!viewMap.containsKey(view.getId())) {
-            MyTextWatcher myTextWatcher = new MyTextWatcher(view) {
+        if(editText!=null&&editText.getId()!=NO_ID&&!viewMap.containsKey(editText.getId())) {
+            MyTextWatcher myTextWatcher = new MyTextWatcher(editText) {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                     int hashCode =  editText.getContext().hashCode();
@@ -84,8 +93,8 @@ public class EditViewUtil {
                     }
                 }
             };
-            view.addTextChangedListener(myTextWatcher);
-            viewMap.put(view.getId(), myTextWatcher);
+            editText.addTextChangedListener(myTextWatcher);
+            viewMap.put(editText.getId(), myTextWatcher);
         }
     }
 
@@ -108,7 +117,7 @@ public class EditViewUtil {
 
     private void removeEditView(Map<Integer, MyTextWatcher> map, int hashCode) {
         for(Map.Entry entry:map.entrySet()){
-            if(((EditText)entry.getValue()).getContext().hashCode() == hashCode){
+            if(entry.getValue()!=null&&entry.getValue() instanceof EditText &&((EditText)entry.getValue()).getContext().hashCode() == hashCode){
                 viewMap.remove(entry.getKey());
                 removeEditView(viewMap,hashCode);
             }

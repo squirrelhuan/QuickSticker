@@ -1,5 +1,2 @@
 //rootProject.name='QuickSticker'
-include ':app'
-include ':quicksticker-annotations'
-include ':quicksticker-compiler'
-include ':quicksticker_lib'
+include ':app',':quicksticker-annotations',':quicksticker-compiler',':quicksticker_lib'

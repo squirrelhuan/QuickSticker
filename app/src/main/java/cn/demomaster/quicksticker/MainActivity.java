@@ -16,8 +16,8 @@ import java.util.Arrays;
 
 import cn.demomaster.quicksticker_annotations.BindEditView;
 import cn.demomaster.quicksticker_annotations.BindView;
+import cn.demomaster.quicksticker_annotations.QuickStickerBinder;
 import cn.demomaster.quicksticker_lib.EditViewUtil;
-import cn.demomaster.quicksticker_lib.QuickStickerBinder;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,11 +37,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        QuickStickerBinder.getInstance().inject(this);
+        QuickStickerBinder.getInstance().bind(this);
         tv_context.setText("tv_context");
         //et_phone.setText(parse());
-
-        /*EditViewUtil.getInstance().addTextWarcherListener(this,new EditViewUtil.OnEditViewChangeListener() {
+        EditViewUtil.getInstance().addTextChangedListener(this,new EditViewUtil.OnEditViewChangeListener() {
             @Override
             public void beforeTextChanged(EditText editText, CharSequence s, int start, int count, int after) {
 
@@ -65,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(EditText editText, Editable s) {
 
             }
-        });*/
+        });
 
         /*editViewUtil.bind(et_username);
         editViewUtil.bind(et_phone);
@@ -76,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         QuickStickerBinder.getInstance().unBind(this);
-
     }
 
 
