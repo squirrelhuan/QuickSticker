@@ -61,7 +61,6 @@ public class BindViewProcessor extends AbstractProcessor {
 //        return SourceVersion.latestSupported();
 
     String printStr = "";
-
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnv) {
         println("start process");
