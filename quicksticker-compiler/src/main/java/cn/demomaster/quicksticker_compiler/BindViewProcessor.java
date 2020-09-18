@@ -48,7 +48,6 @@ public class BindViewProcessor extends AbstractProcessor {
         mElementsUtils = processingEnv.getElementUtils();
     }
 
-
 //    @Override
 //    public Set<String> getSupportedAnnotationTypes() {
 //        HashSet<String> supportTypes = new LinkedHashSet<>();
